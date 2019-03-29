@@ -16,8 +16,8 @@ type Assertion struct {
 // AssertionGroup represents an group of assertions
 type AssertionGroup struct {
 	Name       string       `json:"name"`
-	Entity     interface{}  `json:"entity,omitempty"`
 	Result     string       `json:"result"`
+	Entity     interface{}  `json:"entity,omitempty"`
 	Assertions []*Assertion `json:"assertions"`
 }
 
