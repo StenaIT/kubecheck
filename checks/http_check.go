@@ -251,7 +251,7 @@ func (e HTTPResponseHeaderExpectation) Verify(context HTTPExpectationContext) []
 
 // Verify is called to verify expectations
 func (e HTTPResponseTimeExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
-	ag := NewAssertionGroup("HTTPResponseTime", nil)
+	ag := NewAssertionGroup("ResponseTime", nil)
 
 	ag.AssertTrue("LessThen", context.ResponseTime <= e.Expected, e.Expected.String(), context.ResponseTime.String())
 
