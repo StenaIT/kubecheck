@@ -19,9 +19,15 @@ type HTTPGetHealthcheck struct {
 	HealthcheckExpectations
 }
 
+// HTTPExpectationContext defines the context for expecations
+type HTTPExpectationContext struct {
+	Response     *nethttp.Response
+	ResponseTime time.Duration
+}
+
 // HTTPResponseExpectation defines the expectation interface
 type HTTPResponseExpectation interface {
-	Verify(response *nethttp.Response) []*AssertionGroup
+	Verify(context HTTPExpectationContext) []*AssertionGroup
 }
 
 // HTTPStatusCodeExpectation defines expectations on HTTP Status Codes
@@ -47,6 +53,11 @@ type HTTPResponseHeaderExpectation struct {
 	Expected string
 }
 
+// HTTPResponseTimeExpectation defines expectations on HTTP Response time
+type HTTPResponseTimeExpectation struct {
+	Expected time.Duration
+}
+
 // Execute runs the healthcheck
 func (c HTTPGetHealthcheck) Execute() Result {
 	input := struct {
@@ -56,13 +67,22 @@ func (c HTTPGetHealthcheck) Execute() Result {
 	}
 
 	client := http.NewClient(c.URL)
+
+	start := time.Now()
 	resp, err := client.Get("")
+	end := time.Now()
+
 	if err != nil {
 		return FailWithInput(err.Error(), input)
 	}
 
+	context := HTTPExpectationContext{
+		Response:     resp,
+		ResponseTime: end.Sub(start),
+	}
+
 	return c.VerifyExpectation(input, func(assertion interface{}) []*AssertionGroup {
-		return assertion.(HTTPResponseExpectation).Verify(resp)
+		return assertion.(HTTPResponseExpectation).Verify(context)
 	})
 }
 
@@ -137,9 +157,21 @@ func ExpectHeader(header string, expected string) HTTPResponseHeaderExpectation 
 	}
 }
 
+// ExpectResponseIn creates an expecation
+func ExpectResponseIn(duration string) HTTPResponseTimeExpectation {
+	d, err := time.ParseDuration(duration)
+	if err != nil {
+		panic(err)
+	}
+	return HTTPResponseTimeExpectation{
+		Expected: d,
+	}
+}
+
 // Verify is called to verify expectations
-func (e HTTPStatusCodeExpectation) Verify(response *nethttp.Response) []*AssertionGroup {
+func (e HTTPStatusCodeExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
 	ag := NewAssertionGroup("HTTPStatusCode", nil)
+	response := context.Response
 
 	if e.MinStatusCode == e.MaxStatusCode {
 		ag.AssertTrue("Equals", response.StatusCode == e.MinStatusCode, e.MinStatusCode, response.StatusCode)
@@ -151,8 +183,9 @@ func (e HTTPStatusCodeExpectation) Verify(response *nethttp.Response) []*Asserti
 }
 
 // Verify is called to verify expectations
-func (e HTTPCertificateExpectation) Verify(response *nethttp.Response) []*AssertionGroup {
+func (e HTTPCertificateExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
 	out := make([]*AssertionGroup, 0)
+	response := context.Response
 
 	empty := response.TLS == nil || len(response.TLS.PeerCertificates) <= 0
 	if !empty {
@@ -183,8 +216,9 @@ func certExpiresInDays(cert *x509.Certificate) int {
 }
 
 // Verify is called to verify expectations
-func (e HTTPResponseBodyExpectation) Verify(response *nethttp.Response) []*AssertionGroup {
+func (e HTTPResponseBodyExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
 	ag := NewAssertionGroup("HTTPResponseBody", nil)
+	response := context.Response
 
 	defer response.Body.Close()
 	body, _ := ioutil.ReadAll(response.Body)
@@ -205,11 +239,21 @@ func (e HTTPResponseBodyExpectation) Verify(response *nethttp.Response) []*Asser
 }
 
 // Verify is called to verify expectations
-func (e HTTPResponseHeaderExpectation) Verify(response *nethttp.Response) []*AssertionGroup {
+func (e HTTPResponseHeaderExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
 	ag := NewAssertionGroup("HTTPResponseHeader", e.Header)
+	response := context.Response
 
 	actual := response.Header.Get(e.Header)
 	ag.AssertTrue("Equals", actual == e.Expected, e.Expected, actual)
+
+	return []*AssertionGroup{ag}
+}
+
+// Verify is called to verify expectations
+func (e HTTPResponseTimeExpectation) Verify(context HTTPExpectationContext) []*AssertionGroup {
+	ag := NewAssertionGroup("HTTPResponseTime", nil)
+
+	ag.AssertTrue("LessThen", context.ResponseTime <= e.Expected, e.Expected.String(), context.ResponseTime.String())
 
 	return []*AssertionGroup{ag}
 }
