@@ -48,7 +48,7 @@ type KubernetesPodContainerExpectation struct {
 func NewKubernetesPodHealthcheck(name string, config KubernetesPodConfig) KubernetesPodHealthcheck {
 	return KubernetesPodHealthcheck{
 		Name:        name,
-		Description: "Performs pod healthchecks",
+		Description: "Performs Kubernetes pod healthchecks",
 		Config:      config,
 		HealthcheckExpectations: HealthcheckExpectations{
 			Expectations: make([]interface{}, 0),

@@ -62,7 +62,7 @@ func NewKubernetesTraefikHealthcheck(name string, config KubernetesTraefikConfig
 
 	return KubernetesTraefikHealthcheck{
 		Name:        name,
-		Description: "Performs traefik healthchecks",
+		Description: "Performs Traefik healthchecks",
 		Config:      config,
 		HealthcheckExpectations: HealthcheckExpectations{
 			Expectations: []interface{}{dse, sse},
