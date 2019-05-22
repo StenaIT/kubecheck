@@ -25,11 +25,18 @@ A "check" is one or more assertions made against a single resource or a group of
 A "single resource" may be something like a loadbalancer or a DNS record.  
 A "group of resources" may be something like a Traefik (reverse proxy) cluster or Kubernetes nodes.
 
+## Passed/Failed checks
+
+A check can have a `status` of `passed` or `failed`.
+
+The response object of a `failed` check includes additional data that is not returned for a `passed` check.
+The `input` and `output` fields are only included for a `failed` check and may contain "schemaless" data. In other words, avoid parsing the data of these fields unless you really need to. In the future, a fixed schema may be applied that make parsing these fields easier.
+
 ## What to do when a check fails
 
 The first step is to look at the JSON response for the check that failed. In case of a failed check, details of the assertions made against the resource(s) are returned along with a failed status code.
 
-Here's an example response fore a failed check:
+Here's an example response for a failed check:
 
 ```json
 {
