@@ -13,7 +13,7 @@ type Event string
 // Webhook defines a webhook
 type Webhook struct {
 	Name   string
-	URI    string
+	URL    string
 	Data   string
 	Events []Event
 }
@@ -28,7 +28,7 @@ func TriggerWebhooks(hooks []Webhook, e Event) {
 					"event": e,
 				}).Info("Invoking webhook")
 				body := bytes.NewReader([]byte(hook.Data))
-				http.NewClient(hook.URI).Post("", body)
+				http.NewClient(hook.URL).Post("", body)
 			}
 		}
 	}

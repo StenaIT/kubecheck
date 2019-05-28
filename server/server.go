@@ -121,7 +121,7 @@ func indexHandler(kubecheck *config.Kubecheck) func(w http.ResponseWriter, r *ht
 func healtchecksHandler(config *config.KubecheckConfig, healthchecks []checks.Healthcheck) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		statusCode := http.StatusOK
-		results := runHealtchecks(healthchecks, func(d checks.Description, r checks.Result) interface{} {
+		results := runHealtchecks(config, healthchecks, func(d checks.Description, r checks.Result) interface{} {
 			if r.Status == checks.Failed {
 				statusCode = http.StatusFailedDependency
 			}
