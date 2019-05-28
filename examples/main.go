@@ -8,6 +8,7 @@ import (
 
 	"github.com/StenaIT/kubecheck/checks"
 	"github.com/StenaIT/kubecheck/config"
+	"github.com/StenaIT/kubecheck/hook"
 	"github.com/StenaIT/kubecheck/server"
 
 	"github.com/apex/log"
@@ -28,6 +29,19 @@ func configureKubecheck() *config.Kubecheck {
 		Config: &config.KubecheckConfig{
 			Debug:    debug,
 			LogLevel: logLevel,
+			Webhooks: []hook.Webhook{
+				hook.Webhook{
+					Name:   "healthchecks-io",
+					URL:    "https://hc-ping.com/b68522d5-eb89-44a9-8335-7f668f1aa691",
+					Events: []hook.Event{config.OnHealthcheckCompletedEvent},
+				},
+				// hook.Webhook{
+				// 	Name:   "slack-on-completed",
+				// 	URL:    "<SLACK_WEBHOOK_URL>",
+				// 	Data:   `{"username": "Kubecheck", "text": "Healthchecks ran to completion"}`,
+				// 	Events: []hook.Event{config.OnHealthcheckCompletedEvent},
+				// },
+			},
 		},
 		Healthchecks: configureHealthchecks(),
 		Router:       nil,

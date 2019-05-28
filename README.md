@@ -19,20 +19,22 @@ Kubecheck does not provide built in authentication. Instead it is recommended th
 ## Example usage
 A basic example is provided in the examples directory of this repository.
 
-## What is a check
+## Checks
+
+### What is a check
 A "check" is one or more assertions made against a single resource or a group of similar resources.  
 
 A "single resource" may be something like a loadbalancer or a DNS record.  
 A "group of resources" may be something like a Traefik (reverse proxy) cluster or Kubernetes nodes.
 
-## Passed/Failed checks
+### Passed/Failed checks
 
 A check can have a `status` of `passed` or `failed`.
 
 The response object of a `failed` check includes additional data that is not returned for a `passed` check.
 The `input` and `output` fields are only included for a `failed` check and may contain "schemaless" data. In other words, avoid parsing the data of these fields unless you really need to. In the future, a fixed schema may be applied that make parsing these fields easier.
 
-## What to do when a check fails
+### What to do when a check fails
 
 The first step is to look at the JSON response for the check that failed. In case of a failed check, details of the assertions made against the resource(s) are returned along with a failed status code.
 
@@ -106,3 +108,9 @@ Here's an example response for a failed check:
 
 In the example above, it is possible to see the `input` of the check, which is the value(s) used to configure the check.  
 The `output` property contains detailed information on each assertion made against the resource(s) and the outcome of that assertion. In some cases the assertion output contains additional information about the entity in question.
+
+
+## Hooks
+
+Kubecheck has basic support for webhooks, allowing services that support them to get notified.
+See the example for more info on how to set it up.
