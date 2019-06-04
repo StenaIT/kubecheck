@@ -25,4 +25,10 @@ type KubecheckConfig struct {
 	Debug    bool
 	LogLevel string
 	Webhooks []hook.Webhook
+	API      APIConfig
+}
+
+// APIConfig defines the configuration for the API
+type APIConfig struct {
+	ForceOKStatusCode bool
 }

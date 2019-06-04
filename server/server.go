@@ -121,16 +121,20 @@ func indexHandler(kubecheck *config.Kubecheck) func(w http.ResponseWriter, r *ht
 func healtchecksHandler(config *config.KubecheckConfig, healthchecks []checks.Healthcheck) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		statusCode := http.StatusOK
+
 		results := runHealtchecks(config, healthchecks, func(d checks.Description, r checks.Result) interface{} {
 			if r.Status == checks.Failed {
 				statusCode = http.StatusFailedDependency
 			}
+
 			var input interface{}
 			var output interface{}
+
 			if r.Status == checks.Failed || config.Debug {
 				input = r.Input
 				output = r.Output
 			}
+
 			return apiCheckResponse{
 				Description: d.Description,
 				Status:      r.Status,
@@ -139,6 +143,10 @@ func healtchecksHandler(config *config.KubecheckConfig, healthchecks []checks.He
 				Output:      output,
 			}
 		})
+
+		if config.API.ForceOKStatusCode {
+			statusCode = http.StatusOK
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(statusCode)
