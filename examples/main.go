@@ -60,6 +60,12 @@ func configureKubecheck() *config.Kubecheck {
 func configureHealthchecks() []checks.Healthcheck {
 	healthchecks := make([]checks.Healthcheck, 0)
 
+	healthchecks = append(healthchecks, checks.RandomFailHealthcheck{
+		Name:        "random-failure",
+		Description: "Randomly fails at the given failure rate. Usually used for debugging alarms. Failures may be ignored!",
+		FailRate:    10,
+	})
+
 	healthchecks = append(healthchecks, checks.HTTPGetHealthcheck{
 		Name:        "http-get",
 		Description: "Performs a HTTP GET request",
