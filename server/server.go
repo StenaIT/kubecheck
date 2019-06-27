@@ -37,11 +37,11 @@ func New(kubecheck *config.Kubecheck) *http.Server {
 	if kubecheck.Router == nil {
 		kubecheck.Router = mux.NewRouter()
 		kubecheck.Router.HandleFunc("/", indexHandler(kubecheck))
-		kubecheck.Router.HandleFunc("/checks/", healtchecksHandler(kubecheck.Config, kubecheck.Healthchecks))
+		kubecheck.Router.HandleFunc("/checks/", healthchecksHandler(kubecheck.Config, kubecheck.Healthchecks))
 
 		for _, c := range kubecheck.Healthchecks {
 			hcks := []checks.Healthcheck{c}
-			kubecheck.Router.HandleFunc(getHealthcheckPath(c), healtchecksHandler(kubecheck.Config, hcks))
+			kubecheck.Router.HandleFunc(getHealthcheckPath(c), healthchecksHandler(kubecheck.Config, hcks))
 		}
 
 		kubecheck.Router.Use(loggingMiddleware)
@@ -118,7 +118,7 @@ func indexHandler(kubecheck *config.Kubecheck) func(w http.ResponseWriter, r *ht
 	}
 }
 
-func healtchecksHandler(config *config.KubecheckConfig, healthchecks []checks.Healthcheck) func(w http.ResponseWriter, r *http.Request) {
+func healthchecksHandler(config *config.KubecheckConfig, healthchecks []checks.Healthcheck) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		statusCode := http.StatusOK
 
