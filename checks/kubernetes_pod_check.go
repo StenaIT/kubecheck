@@ -165,7 +165,7 @@ func (e KubernetesPodContainerExpectation) Verify(context KubernetesPodExpectati
 			ag.AssertTrue("Ready", pcs.Ready, true, pcs.Ready)
 
 			if e.MaxRestarts >= 0 {
-				ag.AssertTrue("RestartCount", pcs.RestartCount <= e.MaxRestarts, "<=1", fmt.Sprint(pcs.RestartCount))
+				ag.AssertTrue("RestartCount", pcs.RestartCount <= e.MaxRestarts, fmt.Sprintf("<=%d", e.MaxRestarts), fmt.Sprint(pcs.RestartCount))
 			}
 
 			out = append(out, ag)
