@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+export GO111MODULE=on
+
+run_help() {
+  echo "usage: ./run <command> [<arg1> <arg2> ...]
+commands:
+  examples            Run examples"
+}
+
+run_examples() {
+  go build -o kubecheck ./examples && ./kubecheck
+}
+
+main() {
+  local command="${1:-}"
+  shift || true
+
+  case "${command}" in
+    examples) run_examples "$@" ;;
+    *) run_help ;;
+  esac
+}
+
+main "$@"
