@@ -101,6 +101,13 @@ func configureHealthchecks() []checks.Healthcheck {
 		},
 	))
 
+	healthchecks = append(healthchecks, checks.KubernetesPodAntiAffinityHealthcheck{
+		Name:        "kubernetes-pod-anti-affinity-health",
+		Description: "Performs kubernetes pod anti-affinity healthchecks",
+	}.WithExpectations(
+		checks.ExpectNodeSpread(2),
+	))
+
 	return healthchecks
 }
 
